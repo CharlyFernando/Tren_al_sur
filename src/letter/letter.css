@@ -1,0 +1,415 @@
+.letter {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 40px);
+  pointer-events: none;
+}
+
+/* ---------- Backdrop ---------- */
+
+.letter__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    90% 75% at 50% 46%,
+    rgba(3, 8, 17, 0.18) 0%,
+    rgba(3, 8, 17, 0.52) 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms var(--ease-soft);
+}
+
+.letter[data-state="open"] .letter__overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------- Envelope button ---------- */
+
+.letter-trigger {
+  grid-area: 1 / 1;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: clamp(18px, 3.4vh, 30px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 420ms ease, transform 640ms var(--ease-out);
+}
+
+.letter-trigger:focus-visible {
+  outline: none;
+}
+
+.letter-trigger:focus-visible .envelope {
+  outline: 2px solid rgba(246, 231, 205, 0.85);
+  outline-offset: 10px;
+  border-radius: 4px;
+}
+
+.letter-trigger__hint {
+  font-family: inherit;
+  font-size: 0.66rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: rgba(247, 236, 219, 0.55);
+  text-indent: 0.42em;
+  transition: color 400ms ease, opacity 400ms ease;
+}
+
+.letter-trigger:hover .letter-trigger__hint {
+  color: rgba(247, 236, 219, 0.82);
+}
+
+.letter[data-state="open"] .letter-trigger {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.97);
+  pointer-events: none;
+  transition: opacity 380ms ease, transform 620ms var(--ease-out),
+    visibility 0s linear 380ms;
+}
+
+/* ---------- Envelope ---------- */
+
+.envelope {
+  position: relative;
+  display: block;
+  width: clamp(232px, 38vw, 380px);
+  aspect-ratio: 1.56 / 1;
+  perspective: 1200px;
+  filter: drop-shadow(0 28px 42px rgba(0, 9, 22, 0.5));
+  transition: transform 700ms var(--ease-out), filter 700ms ease;
+  will-change: transform;
+}
+
+.letter-trigger:hover .envelope {
+  transform: translateY(-7px);
+  filter: drop-shadow(0 36px 52px rgba(0, 9, 22, 0.55));
+}
+
+.envelope__back,
+.envelope__paper,
+.envelope__front,
+.envelope__flap {
+  position: absolute;
+  display: block;
+}
+
+.envelope__back {
+  inset: 0;
+  z-index: 0;
+  border-radius: 3px;
+  background: linear-gradient(160deg, #e9ddc9 0%, #f2e8d6 60%, #e6d8c2 100%);
+  box-shadow: inset 0 0 0 1px rgba(92, 70, 44, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+
+.envelope__paper {
+  left: 3.2%;
+  right: 3.2%;
+  top: 3.6%;
+  height: 92%;
+  z-index: 1;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #fffcf4 0%, #f8f1e3 100%);
+  box-shadow: 0 0 0 1px rgba(120, 95, 60, 0.08);
+  transform: translateY(4%) scale(0.985);
+  transition: transform 1100ms var(--ease-out) 120ms;
+}
+
+.letter[data-state="open"] .envelope__paper {
+  transform: translateY(-14%) scale(1);
+}
+
+.envelope__front {
+  inset: 0;
+  z-index: 2;
+  border-radius: 3px;
+  background: linear-gradient(178deg, #fbf4e7 0%, #f2e7d2 52%, #e8dac2 100%);
+  clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 0 0 1px rgba(110, 86, 52, 0.14),
+    inset 0 -22px 30px -24px rgba(110, 86, 52, 0.35);
+}
+
+/* Lower fold, suggested rather than drawn. */
+.envelope__front::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.42) 0%,
+    rgba(255, 255, 255, 0.12) 26%,
+    rgba(255, 255, 255, 0) 52%
+  );
+  clip-path: polygon(0 100%, 50% 34%, 100% 100%);
+}
+
+.envelope__flap {
+  inset: 0;
+  z-index: 3;
+  transform-origin: 50% 0;
+  transform: rotateX(0deg);
+  clip-path: polygon(0 0, 50% 46%, 100% 0);
+  background: linear-gradient(184deg, #e9dcc4 0%, #f6ecdb 48%, #ecdfc8 100%);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 900ms var(--ease-out);
+  will-change: transform;
+}
+
+.letter[data-state="open"] .envelope__flap {
+  transform: rotateX(-172deg);
+}
+
+.envelope__seal {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: clamp(14px, 4.2%, 20px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 34% 30%,
+    #c9776a 0%,
+    #a9503f 55%,
+    #8d3f31 100%
+  );
+  box-shadow: 0 1px 2px rgba(70, 25, 15, 0.4),
+    inset 0 0 0 1px rgba(255, 220, 200, 0.25),
+    inset 0 -2px 3px rgba(70, 20, 10, 0.35);
+}
+
+.envelope__seal::after {
+  content: "";
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 224, 200, 0.35);
+}
+
+/* ---------- Letter sheet ---------- */
+
+.letter-sheet {
+  grid-area: 1 / 1;
+  position: relative;
+  z-index: 3;
+  width: min(640px, 92vw);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(28px) scale(0.93);
+  pointer-events: none;
+  transition: opacity 320ms ease, transform 480ms var(--ease-soft),
+    visibility 0s linear 480ms;
+  will-change: transform, opacity;
+}
+
+.letter[data-state="open"] .letter-sheet {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  transition: opacity 720ms ease 180ms, transform 1000ms var(--ease-out) 140ms,
+    visibility 0s;
+}
+
+.letter-sheet:focus-visible {
+  outline: none;
+}
+
+.letter-sheet__page {
+  position: relative;
+  max-height: min(82svh, 760px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(30px, 5.4vw, 68px) clamp(24px, 5.4vw, 64px);
+  border-radius: 2px;
+  background:
+    radial-gradient(
+      95% 60% at 10% 0%,
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 0) 62%
+    ),
+    linear-gradient(168deg, #fbf6ec 0%, #f4ead8 58%, #eee0ca 100%);
+  box-shadow: 0 44px 96px -26px rgba(0, 8, 20, 0.72),
+    0 2px 10px rgba(0, 8, 20, 0.24),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  color: var(--ink);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(84, 64, 40, 0.28) transparent;
+}
+
+.letter-sheet__page::-webkit-scrollbar {
+  width: 8px;
+}
+
+.letter-sheet__page::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-clip: content-box;
+  background-color: rgba(84, 64, 40, 0.28);
+}
+
+.letter-sheet__page::before {
+  content: "";
+  display: block;
+  width: 36px;
+  height: 1px;
+  margin-bottom: clamp(22px, 3.4vh, 34px);
+  background: rgba(96, 74, 46, 0.28);
+}
+
+.letter-content {
+  min-height: min(44svh, 420px);
+  font-size: clamp(1rem, 0.94rem + 0.28vw, 1.14rem);
+  line-height: 1.88;
+  letter-spacing: 0.006em;
+  color: #35302a;
+  overflow-wrap: break-word;
+}
+
+.letter-content > * {
+  margin: 0 0 1.15em;
+}
+
+.letter-content > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Close ---------- */
+
+.letter-sheet__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid rgba(72, 56, 36, 0.14);
+  border-radius: 50%;
+  background: rgba(255, 252, 246, 0.55);
+  cursor: pointer;
+  transition: background-color 260ms ease, border-color 260ms ease,
+    transform 260ms var(--ease-out);
+}
+
+.letter-sheet__close:hover {
+  border-color: rgba(72, 56, 36, 0.28);
+  background: rgba(255, 252, 246, 0.92);
+}
+
+.letter-sheet__close:active {
+  transform: scale(0.93);
+}
+
+.letter-sheet__close:focus-visible {
+  outline: 2px solid rgba(72, 56, 36, 0.55);
+  outline-offset: 2px;
+}
+
+.letter-sheet__close span {
+  position: relative;
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+
+.letter-sheet__close span::before,
+.letter-sheet__close span::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(58, 48, 36, 0.7);
+}
+
+.letter-sheet__close span::before {
+  transform: rotate(45deg);
+}
+
+.letter-sheet__close span::after {
+  transform: rotate(-45deg);
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 720px) {
+  .letter {
+    padding: 18px;
+  }
+
+  .envelope {
+    width: min(76vw, 300px);
+  }
+
+  .letter-trigger {
+    gap: 20px;
+  }
+
+  .letter-trigger__hint {
+    font-size: 0.62rem;
+  }
+
+  .letter-sheet {
+    width: 92vw;
+  }
+
+  .letter-sheet__page {
+    max-height: 78svh;
+    padding: 34px 24px 30px;
+  }
+
+  .letter-sheet__page::before {
+    margin-bottom: 22px;
+  }
+
+  .letter-content {
+    min-height: 48svh;
+    font-size: 1rem;
+    line-height: 1.82;
+  }
+
+  .letter-sheet__close {
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .envelope,
+  .envelope__paper,
+  .envelope__flap,
+  .letter-trigger,
+  .letter__overlay,
+  .letter-sheet,
+  .letter-sheet__close {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .letter-trigger:hover .envelope {
+    transform: none;
+  }
+}
